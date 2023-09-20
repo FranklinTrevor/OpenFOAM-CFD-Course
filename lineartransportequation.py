@@ -44,7 +44,7 @@ ui = u.copy()
 plt.plot(x,u); # plots IC
 
 # BDS/Upwind with inner for-loop with example on process timing
-start = time.process_time()
+start_BDS = time.process_time()
 for n in range(nt):
     un = u.copy()
     for i in range(1,nx-1):
@@ -53,36 +53,62 @@ for n in range(nt):
         u[0] = u[nx-2] 
         u[nx-1] = u[1]
 
-end = time.process_time()
-print(end-start)
+end_BDS = time.process_time()
+time_BDS = end_BDS - start_BDS
+print(time_BDS)
 
-# BDS/Upwind with vectorization
-# start = time.process_time()
-# for n in range(nt):
-#     un = u.copy()
-#     u[1:-1] = un[1:-1] - c*dt/(dx)*(un[1:-1]-un[:-2])
-#     # periodic BC's
-#     u[0] = u[nx-2]
-#     u[nx-1] = u[1]
+#BDS/Upwind with vectorization
+start_BDSVec = time.process_time()
+for n in range(nt):
+     un = u.copy()
+     u[1:-1] = un[1:-1] - c*dt/(dx)*(un[1:-1]-un[:-2])
+     # periodic BC's
+     u[0] = u[nx-2]
+     u[nx-1] = u[1]
 
-# end = time.process_time()
-# print(end-start)
+end_BDSVec = time.process_time()
+time_BDSVec = end_BDSVec - start_BDSVec
+print(time_BDSVec)
 
-# # CDS with inner for-loop
-#for n in range(nt):
-#    un = u.copy()
-#    for i in range(1,nx-1):
-#        u[i] = un[i] - c*dt/(2*dx)*(un[i+1]-un[i-1])
-#        # periodic BC's
-#        u[0] = u[nx-2]
-#        u[nx-1] = u[1]
 
-# # CDS with vectorization
-#for n in range(nt):
-#    un = u.copy()
-#    u[1:-1] = un[1:-1] - c*dt/(2*dx)*(un[2:]-un[:-2])
-#    # periodic BC's
-#    u[0] = u[nx-2]
-#    u[nx-1] = u[1]
+# CDS with inner for-loop
+start_CDS = time.process_time()
+for n in range(nt):
+    un = u.copy()
+    for i in range(1,nx-1):
+        u[i] = un[i] - c*dt/(2*dx)*(un[i+1]-un[i-1])
+        # periodic BC's
+        u[0] = u[nx-2]
+        u[nx-1] = u[1]
 
-plt.plot(x,u);
+end_CDS = time.process_time()
+time_CDS = end_CDS - start_CDS
+print(time_CDS)
+
+# CDS with vectorization
+start_CDSVec = time.process_time()
+for n in range(nt):
+    un = u.copy()
+    u[1:-1] = un[1:-1] - c*dt/(2*dx)*(un[2:]-un[:-2])
+    # periodic BC's
+    u[0] = u[nx-2]
+    u[nx-1] = u[1]
+
+end_CDSVec = time.process_time()
+time_CDSVec = end_CDSVec - start_CDSVec
+print(time_CDSVec)
+
+plt.plot(x,u)
+plt.show()
+
+#### My Added Plot ####
+x_tags = [1, 2, 3, 4]
+y_tags = [time_BDS, time_BDSVec, time_CDS, time_CDSVec]
+labels = ["BDS", "BDS with vectorization", "CDS", "CDS with vectorization"]
+color = ["tab:red", "tab:orange", "tab:blue", "tab:green"]
+
+plt.bar(x_tags, y_tags, color = color)
+plt.xticks(x_tags, labels)
+plt.title("Run Time for Each Numerical Scheme on my Macbook air")
+plt.ylabel("Seconds (s)")
+plt.show()
